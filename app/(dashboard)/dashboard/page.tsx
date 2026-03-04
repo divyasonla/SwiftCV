@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { FileText, Download, Eye, Plus, Copy, Trash2, Calendar, Target, Edit2 } from 'lucide-react'
+import { FileText, Download, Eye, Plus, Target } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { ResumeCard } from '@/components/dashboard/ResumeCard'
 
 export const revalidate = 0; // Don't cache dashboard
 
@@ -99,61 +100,9 @@ export default async function DashboardPage() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {resumes?.map((resume) => {
-                                let rData: any = {};
-                                try { rData = typeof resume.data === 'string' ? JSON.parse(resume.data) : resume.data } catch (e) { }
-                                const score = rData.atsScore || 0;
-
-                                return (
-                                    <div key={resume.id} className="group relative bg-[#0A0A0F] border border-white/10 rounded-xl overflow-hidden hover:border-blue-500/50 hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-300">
-
-                                        {/* Header line */}
-                                        <div className="h-1 w-full bg-gradient-to-r from-blue-500 to-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity" />
-
-                                        <div className="p-5">
-                                            <div className="flex justify-between items-start mb-4">
-                                                <Link href={`/build?id=${resume.id}`} className="hover:underline flex-1">
-                                                    <h3 className="text-lg font-bold text-white truncate pr-4">{resume.title || 'Untitled Resume'}</h3>
-                                                </Link>
-                                                <div className={`text-xs font-bold px-2 py-1 rounded shrink-0 ${score >= 70 ? 'bg-emerald-500/20 text-emerald-400' : score >= 40 ? 'bg-amber-500/20 text-amber-400' : 'bg-red-500/20 text-red-400'}`}>
-                                                    {score} ATS
-                                                </div>
-                                            </div>
-
-                                            <div className="flex gap-2 mb-6">
-                                                <span className="text-[10px] font-medium px-2 py-1 bg-white/5 border border-white/10 rounded text-slate-300 capitalize">
-                                                    {resume.template || 'Classic'} Template
-                                                </span>
-                                                {resume.is_public && (
-                                                    <span className="text-[10px] font-medium px-2 py-1 bg-blue-500/10 border border-blue-500/20 rounded text-blue-400">
-                                                        Public
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-6">
-                                                <Calendar className="w-3.5 h-3.5" />
-                                                Edited {timeAgo(resume.updated_at)}
-                                            </div>
-
-                                            {/* Actions */}
-                                            <div className="flex items-center gap-2 border-t border-white/5 pt-4">
-                                                <Button asChild size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white h-8 text-xs">
-                                                    <Link href={`/build?id=${resume.id}`}>
-                                                        <Edit2 className="w-3.5 h-3.5 mr-1.5" /> Edit
-                                                    </Link>
-                                                </Button>
-                                                <Button variant="outline" size="icon" className="h-8 w-8 bg-transparent border-white/10 hover:bg-white/5 disabled:opacity-50">
-                                                    <Copy className="w-3.5 h-3.5 text-slate-400" />
-                                                </Button>
-                                                <Button variant="outline" size="icon" className="h-8 w-8 bg-transparent border-white/10 hover:bg-red-500/10 hover:border-red-500/30 disabled:opacity-50 group/del">
-                                                    <Trash2 className="w-3.5 h-3.5 text-slate-400 group-hover/del:text-red-400" />
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )
-                            })}
+                            {resumes?.map((resume) => (
+                                <ResumeCard key={resume.id} resume={resume} />
+                            ))}
                         </div>
                     )}
                 </div>

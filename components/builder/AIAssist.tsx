@@ -19,9 +19,7 @@ export function AIAssist({ text, role, techStack, onAccept, type, skills }: AIAs
     const [isGenerating, setIsGenerating] = useState(false)
     const [suggestion, setSuggestion] = useState<string | null>(null)
     const [error, setError] = useState<string | null>(null)
-
-    // Fake limits for the UI until backend is fully hooked up
-    const [limits] = useState({ used: 2, total: 10 })
+    const [remainingUses, setRemainingUses] = useState<number | null>(null)
 
     const handleRewrite = async () => {
         setIsGenerating(true)
@@ -48,6 +46,9 @@ export function AIAssist({ text, role, techStack, onAccept, type, skills }: AIAs
 
             const data = await res.json()
             setSuggestion(data.result)
+            if (data.remaining !== undefined) {
+                setRemainingUses(data.remaining)
+            }
 
         } catch (err: any) {
             setError(err.message)
@@ -115,8 +116,8 @@ export function AIAssist({ text, role, techStack, onAccept, type, skills }: AIAs
             </Button>
 
             {error && <span className="text-[10px] text-red-400 font-medium">{error}</span>}
-            {!error && limits.used > 0 && (
-                <span className="text-[9px] text-slate-500">{limits.total - limits.used} AI uses left today</span>
+            {!error && remainingUses !== null && (
+                <span className="text-[9px] text-slate-500">{remainingUses} AI uses left today</span>
             )}
         </div>
     )

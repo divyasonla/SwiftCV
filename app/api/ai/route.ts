@@ -92,7 +92,10 @@ export async function POST(req: Request) {
                 ai_rewrites_date: today
             })
 
-        return NextResponse.json({ result: resultText })
+        return NextResponse.json({
+            result: resultText,
+            remaining: 10 - (usedCount + 1)
+        })
 
     } catch (error: any) {
         console.error("AI Route Error:", error)
