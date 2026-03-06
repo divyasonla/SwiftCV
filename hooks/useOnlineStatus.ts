@@ -5,8 +5,10 @@ import { toast } from 'sonner'
 
 export function useOnlineStatus() {
     const [isOnline, setIsOnline] = useState(true) // Default true for SSR
+    const [isMounted, setIsMounted] = useState(false)
 
     useEffect(() => {
+        setIsMounted(true)
         // Set initial state client-side
         setIsOnline(navigator.onLine)
 
@@ -34,5 +36,6 @@ export function useOnlineStatus() {
         }
     }, [])
 
-    return isOnline
+    // Return true during SSR to match server render, then use real status
+    return isMounted ? isOnline : true
 }

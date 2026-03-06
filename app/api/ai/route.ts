@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server'
-import Anthropic from "@anthropic-ai/sdk"
+import { GoogleGenerativeAI } from '@google/generative-ai'
 import { createClient } from '@/lib/supabase-server'
 
-// Initialize Anthropic client
-// Ensure ANTHROPIC_API_KEY is in .env.local
-const anthropic = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
+// Initialize Gemini client
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(req: Request) {
     try {
@@ -69,18 +66,12 @@ export async function POST(req: Request) {
                 return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
         }
 
-        // 4. Call Anthropic API
-        const message = await anthropic.messages.create({
-            max_tokens: 150,
-            temperature: 0.7,
-            system: systemPrompt,
-            messages: [
-                { role: 'user', content: userPrompt }
-            ],
-            model: 'claude-3-haiku-20240307',
-        })
+        // 4. Call Gemini API
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+        const prompt = `${systemPrompt}\n\nTask:\n${userPrompt}`;
 
-        const resultText = (message.content[0] as any).text.trim()
+        const result = await model.generateContent(prompt);
+        const resultText = result.response.text().trim();
 
         // 5. Update Rate Limit in Database
         // Only update if we successfully generated text

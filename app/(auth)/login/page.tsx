@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { supabase } from '@/lib/supabase'
+import { createBrowserClient } from '@supabase/ssr'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 
@@ -23,19 +23,29 @@ export default function LoginPage() {
     const [googleLoading, setGoogleLoading] = useState(false)
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [authError, setAuthError] = useState('')
+
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
 
     const handleEmailLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
+        setAuthError('')
         try {
             const { error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             })
             if (error) throw error
-            router.push('/build')
-            router.refresh()
+
+            // Force a hard navigation instead of Next.js soft-routing 
+            // so that middleware.ts reliably catches the new auth cookie
+            window.location.href = '/dashboard'
         } catch (error: any) {
+            setAuthError(error.message || 'Failed to login')
             toast.error(error.message || 'Failed to login')
         } finally {
             setLoading(false)
@@ -53,6 +63,7 @@ export default function LoginPage() {
             })
             if (error) throw error
         } catch (error: any) {
+            setAuthError(error.message || 'Failed to login with Google')
             toast.error(error.message || 'Failed to login with Google')
             setGoogleLoading(false)
         }
@@ -123,6 +134,12 @@ export default function LoginPage() {
                             required
                         />
                     </div>
+
+                    {authError && (
+                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-md">
+                            <p className="text-sm font-medium text-red-500 text-center">{authError}</p>
+                        </div>
+                    )}
 
                     <Button
                         type="submit"

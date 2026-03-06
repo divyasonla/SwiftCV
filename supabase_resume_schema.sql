@@ -5,6 +5,8 @@ CREATE TABLE public.resumes (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   title TEXT DEFAULT 'My Resume',
   data JSONB NOT NULL DEFAULT '{}',
+  template TEXT DEFAULT 'classic',
+  is_public BOOLEAN DEFAULT false,
   ats_score INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
@@ -40,4 +42,6 @@ CREATE TABLE public.resume_views (
 );
 
 -- Note: You may want an unauthenticated read policy if you plan on generating public share links
--- CREATE POLICY "Public can view shared resumes" ON public.resumes FOR SELECT USING (true); -- Only enable if needed!
+CREATE POLICY "Public can view shared resumes" 
+ON public.resumes FOR SELECT 
+USING (is_public = true);

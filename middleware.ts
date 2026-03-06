@@ -40,11 +40,15 @@ export async function middleware(request: NextRequest) {
     const isAuthRoute = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup')
     const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/build')
 
+    console.log(`[Middleware] Path: ${request.nextUrl.pathname} | User: ${user ? user.email : 'null'}`)
+
     if (isProtectedRoute && !user) {
+        console.log(`[Middleware] Redirecting unauthenticated user to /login`)
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
     if (isAuthRoute && user) {
+        console.log(`[Middleware] Redirecting authenticated user to /dashboard`)
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 

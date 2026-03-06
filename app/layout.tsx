@@ -23,8 +23,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
-      <body className={`${syne.className} antialiased bg-[#0A0A0F] text-foreground`}>
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <body className={`${syne.className} antialiased bg-[#0A0A0F] text-foreground`} suppressHydrationWarning>
         <CSPostHogProvider>
           <SmoothScrollProvider>
             <OfflineBanner />

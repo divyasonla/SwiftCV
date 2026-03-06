@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Syne } from 'next/font/google'
 import Link from 'next/link'
 import { Download, Loader2, CheckCircle2 } from 'lucide-react'
@@ -25,9 +25,16 @@ import { JDMatcher } from '@/components/ats/JDMatcher'
 
 const syne = Syne({ subsets: ['latin'] })
 
-export function BuildPageClient() {
+export function BuildPageClient({ initialData }: { initialData?: any }) {
     const { data, activeSection, isSaving } = useResumeStore()
     const setResumeTitle = useResumeStore(s => s.setResumeTitle)
+    const loadResume = useResumeStore(s => s.loadResume)
+
+    useEffect(() => {
+        if (initialData) {
+            loadResume(initialData)
+        }
+    }, [initialData, loadResume])
 
     const [isDownloading, setIsDownloading] = useState(false)
 

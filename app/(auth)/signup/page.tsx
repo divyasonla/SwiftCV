@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
-import { supabase } from '@/lib/supabase'
+import { createBrowserClient } from '@supabase/ssr'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 
@@ -25,9 +25,16 @@ export default function SignupPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+    const [authError, setAuthError] = useState('')
+
+    const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
 
     const handleEmailSignup = async (e: React.FormEvent) => {
         e.preventDefault()
+        setAuthError('')
 
         if (password !== confirmPassword) {
             toast.error('Passwords do not match')
@@ -59,6 +66,7 @@ export default function SignupPage() {
             // Clear form occasionally, or redirect
             router.push('/login')
         } catch (error: any) {
+            setAuthError(error.message || 'Failed to sign up')
             toast.error(error.message || 'Failed to sign up')
         } finally {
             setLoading(false)
@@ -76,6 +84,7 @@ export default function SignupPage() {
             })
             if (error) throw error
         } catch (error: any) {
+            setAuthError(error.message || 'Failed to sign up with Google')
             toast.error(error.message || 'Failed to sign up with Google')
             setGoogleLoading(false)
         }
@@ -169,6 +178,12 @@ export default function SignupPage() {
                             required
                         />
                     </div>
+
+                    {authError && (
+                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-md">
+                            <p className="text-sm font-medium text-red-500 text-center">{authError}</p>
+                        </div>
+                    )}
 
                     <Button
                         type="submit"

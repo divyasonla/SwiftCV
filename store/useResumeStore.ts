@@ -58,7 +58,7 @@ const initialData: ResumeData = {
     skills: { technical: [], tools: [], soft: [], languages: [] },
     certifications: [],
     achievements: [],
-    sectionOrder: ['experience', 'education', 'projects', 'skills', 'certifications', 'achievements'],
+    sectionOrder: ['summary', 'experience', 'education', 'projects', 'skills', 'certifications', 'achievements'],
     lastUpdated: new Date().toISOString()
 }
 
@@ -114,7 +114,13 @@ export const useResumeStore = create<ResumeState>((set, get) => {
         aiCreditsUsed: 0,
 
         setActiveSection: (section) => set({ activeSection: section }),
-        loadResume: (data) => set({ data, isDirty: false, isSaving: false }),
+        loadResume: (data) => {
+            // Hotfix: Ensure 'summary' exists in sectionOrder for legacy resumes
+            if (!data.sectionOrder.includes('summary')) {
+                data.sectionOrder = ['summary', ...data.sectionOrder];
+            }
+            set({ data, isDirty: false, isSaving: false })
+        },
 
         updatePersonalInfo: (info) => updateData(d => ({ ...d, personalInfo: { ...d.personalInfo, ...info } })),
         updateSummary: (summary) => updateData(d => ({ ...d, summary })),
